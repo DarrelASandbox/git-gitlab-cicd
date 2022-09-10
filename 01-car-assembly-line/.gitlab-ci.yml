@@ -1,0 +1,31 @@
+stages:
+  - build
+  - test
+
+build the car:
+  stage: build
+  script:
+    - mkdir build
+    - cd build
+    - touch car.txt
+    - echo "chassis" >> car.txt # >> operator is for appending
+    - echo "engine" >> car.txt
+    - echo "wheels" >> car.txt
+  artifacts:
+    paths:
+      - build/
+
+test the car:
+  stage: test
+  script:
+    - ls
+    # The test command is used to verify that the file car.txt was created.
+    # The -f flag is needed to check that the specified file exists and is a regular file.
+    - test -f build/car.txt
+    - cd build
+    - cat car.txt
+    # The grep command is used for searching lines that match a regular expression.
+    # It does a global search with the regular expression and prints all matching lines.
+    - grep "chassis" car.txt
+    - grep "engine" car.txt
+    - grep "wheels" car.txt
