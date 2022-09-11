@@ -3,18 +3,47 @@ image: node
 stages:
   - build
   - test
-  - deploy
-  - test deploy
+  - deploy review
+  - deploy staging
+  - deploy production
+  - production tests
+  - cache
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+  policy: pull
+
+update cache:
+  stage: cache
+  script:
+    - npm install
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: push
+  only:
+    - schedules
+
+variables:
+  STAGING_DOMAIN: squishy-meow-staging.surge.sh
+  PRODUCTION_DOMAIN: squishy-meow.surge.sh
 
 build website:
   stage: build
   script:
+    - echo "GATSBY_VERSION=${CI_COMMIT_SHORT_SHA}" > .env.production
+    # - echo $CI_COMMIT_SHORT_SHA
     - npm install
     - npm install -g gatsby-cli
     - gatsby build
   artifacts:
     paths:
       - public
+  except:
+    - schedules
 
 test artifact:
   image: alpine
@@ -23,6 +52,8 @@ test artifact:
     # Test for exit status
     - grep -q "Gatsby" public/index.html
     # - grep "FakeGatsby" public/index.html
+  except:
+    - schedules
 
 test website:
   stage: test
@@ -36,14 +67,75 @@ test website:
     # Pipes let you use the output of a program as the input of another program.
     # `tac` is a simple Unix program that reads the entire input page and reverses the line order (hence we run it twice).
     - curl "http://localhost:9000" | tac | tac | grep -q "Gatsby"
+  except:
+    - schedules
 
-deploy to surge:
-  stage: deploy
+deploy review:
+  stage: deploy review
+  # https://docs.gitlab.com/ee/ci/yaml/#onlyrefs--exceptrefs
+  only:
+    - merge_requests
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://squishy-meow-$CI_ENVIRONMENT_SLUG.surge.sh
+    on_stop: stop review # Name of job
+  script:
+    - echo "https://squishy-meow-$CI_ENVIRONMENT_SLUG.surge.sh"
+    - npm install --global surge
+    - surge --project ./public --domain $STAGING_DOMAIN
+
+stop review:
+  stage: deploy review
+  only:
+    - merge_requests
+  variables:
+    GIT_STRATEGY: none
   script:
     - npm install --global surge
-    - surge --project ./public --domain squishy-meow-snail.surge.sh
+    - surge teardown squishy-meow-$CI_ENVIRONMENT_SLUG.surge.sh
+  when: manual
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    action: stop
 
-test deployment:
+deploy staging:
+  stage: deploy staging
+  environment:
+    name: staging
+    url: http://$STAGING_DOMAIN
+  only:
+    - main
+  script:
+    - npm install --global surge
+    - surge --project ./public --domain $STAGING_DOMAIN
+
+deploy production:
+  stage: deploy production
+  environment:
+    name: production
+    url: http://$PRODUCTION_DOMAIN
+  # https://docs.gitlab.com/ee/ci/yaml/#whenmanual
+  # when: manual
+  # https://docs.gitlab.com/ee/ci/yaml/#allow_failure
+  # allow_failure: false
+  only:
+    - main
+  before_script:
+    - echo "Deploying to production"
+  script:
+    - npm install --global surge
+    - surge --project ./public --domain $PRODUCTION_DOMAIN
+  except:
+    - schedules
+
+production tests:
   image: alpine
-  stage: test deploy
-  script: curl -s "squishy-meow-snail.surge.sh" | grep "Greetings peasants!"
+  stage: production tests
+  only:
+    - main
+  script:
+    - apk add --no-cache curl
+    - curl -s "https://$PRODUCTION_DOMAIN" | grep -q "Gatsby"
+    - curl -s "https://$PRODUCTION_DOMAIN" | grep -q "$CI_COMMIT_SHORT_SHA"
+  except:
+    - schedules
