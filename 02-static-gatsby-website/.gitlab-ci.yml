@@ -1,0 +1,49 @@
+image: node
+
+stages:
+  - build
+  - test
+  - deploy
+  - test deploy
+
+build website:
+  stage: build
+  script:
+    - npm install
+    - npm install -g gatsby-cli
+    - gatsby build
+  artifacts:
+    paths:
+      - public
+
+test artifact:
+  image: alpine
+  stage: test
+  script:
+    # Test for exit status
+    - grep -q "Gatsby" public/index.html
+    # - grep "FakeGatsby" public/index.html
+
+test website:
+  stage: test
+  script:
+    - npm install
+    - npm install -g gatsby-cli
+    # Running jobs in the background
+    # Server takes a few seconds to start
+    - gatsby serve &
+    - sleep 20
+    # Pipes let you use the output of a program as the input of another program.
+    # `tac` is a simple Unix program that reads the entire input page and reverses the line order (hence we run it twice).
+    - curl "http://localhost:9000" | tac | tac | grep -q "Gatsby"
+
+deploy to surge:
+  stage: deploy
+  script:
+    - npm install --global surge
+    - surge --project ./public --domain squishy-meow-snail.surge.sh
+
+test deployment:
+  image: alpine
+  stage: test deploy
+  script: curl -s "squishy-meow-snail.surge.sh" | grep "Greetings peasants!"
