@@ -33,6 +33,9 @@ variables:
 
 build website:
   stage: build
+  only:
+    - master
+    - merge_requests
   script:
     - echo "GATSBY_VERSION=${CI_COMMIT_SHORT_SHA}" > .env.production
     # - echo $CI_COMMIT_SHORT_SHA
@@ -57,6 +60,9 @@ test artifact:
 
 test website:
   stage: test
+  only:
+    - master
+    - merge_requests
   script:
     - npm install
     - npm install -g gatsby-cli
@@ -82,7 +88,7 @@ deploy review:
   script:
     - echo "https://squishy-meow-$CI_ENVIRONMENT_SLUG.surge.sh"
     - npm install --global surge
-    - surge --project ./public --domain $STAGING_DOMAIN
+    - surge --project ./public --domain squishy-meow-$CI_ENVIRONMENT_SLUG.surge.sh
 
 stop review:
   stage: deploy review
@@ -98,33 +104,37 @@ stop review:
     name: review/$CI_COMMIT_REF_NAME
     action: stop
 
-deploy staging:
-  stage: deploy staging
-  environment:
-    name: staging
-    url: http://$STAGING_DOMAIN
+# . to disable job
+.deploy_template: &deployAnchor
   only:
     - main
   script:
     - npm install --global surge
-    - surge --project ./public --domain $STAGING_DOMAIN
+    - surge --project ./public --domain $DOMAIN
+  environment:
+    url: http://$DOMAIN
+
+deploy staging:
+  <<: *deployAnchor
+  stage: deploy staging
+  variables:
+    DOMAIN: $STAGING_DOMAIN
+  environment:
+    name: staging
 
 deploy production:
+  <<: *deployAnchor
   stage: deploy production
+  variables:
+    DOMAIN: $PRODUCTION_DOMAIN
   environment:
     name: production
-    url: http://$PRODUCTION_DOMAIN
   # https://docs.gitlab.com/ee/ci/yaml/#whenmanual
   # when: manual
   # https://docs.gitlab.com/ee/ci/yaml/#allow_failure
   # allow_failure: false
-  only:
-    - main
   before_script:
     - echo "Deploying to production"
-  script:
-    - npm install --global surge
-    - surge --project ./public --domain $PRODUCTION_DOMAIN
   except:
     - schedules
 
