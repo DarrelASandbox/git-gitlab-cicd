@@ -14,6 +14,7 @@
         <li><a href="#ci-fundamentals">CI Fundamentals</a>
       </ol>
   </ol>
+  <li><a href="#03-deploy-java-app-to-aws">03-deploy-java-app-to-aws</a></li>
 </details>
 
 &nbsp;
@@ -239,6 +240,37 @@ except:
 - **Destroying environments**
   - [surge teardown](https://surge.sh/help/tearing-down-a-project)
 - [**before_script & after_script configuration**](https://docs.gitlab.com/ee/ci/yaml/#before_script-and-after_script)
+
+&nbsp;
+
+---
+
+&nbsp;
+
+## 03-deploy-java-app-to-aws
+
+- Forked `cars-api` from [Original Repo](https://gitlab.com/gitlab-course-public/cars-api)
+- Import `postman-collection`
+
+### cars-api
+
+> **Jonathan:** For those who just want to test the API locally and don't want to install the whole JAVA stack, I would suggest using Docker
+
+```sh
+# 1. Go to cloned project folder
+cd /path/to/cloned/project
+
+# 2. Pull the gradle image from DockerHub (~634MB at the time of writing)
+docker pull gradle:latest
+
+# 3. Test gradle and show available tasks defined in project
+docker run --rm -u gradle -v "$PWD":/gradle/project -w /gradle/project gradle:latest gradle tasks
+
+# 4. Start application mapping to host port 5000
+docker run --rm -p "5000:5000/tcp" -u gradle -v "$PWD":/gradle/project -w /gradle/project gradle:latest gradle bootRun
+
+# 5. Import Postman scripts from course resources
+```
 
 &nbsp;
 
