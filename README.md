@@ -399,7 +399,9 @@ script:
 1. AWS IAM -> Users -> Add user
    1. **User name:** gitlabci
    2. **Access type:** Programmatic access -> Next
-   3. **Attach existing policies directly:** AmazonS3FullAccess -> Next -> Next
+   3. **Attach existing policies directly:** AdministratorAccess-AWSElasticBeanstalk -> Next -> Next
+      1. **Note:** Replaced `AmazonS3FullAccess` with `AdministratorAccess-AWSElasticBeanstalk` mentioned in previous commit
+      2. This is to allow `CreateApplicationVersion` operation
    4. Create user at Review page
    5. Copy both **Access key ID** and **Secret access key** into GitLab CI variables
       1. **Key:** AWS_ACCESS_KEY_ID
