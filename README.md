@@ -25,6 +25,7 @@
       <li><a href="#aws-elastic-beanstalk">AWS Elastic Beanstalk</a></li>
       <li><a href="#aws-s3">AWS S3</a></li>
       <li><a href="#aws-iam">AWS IAM</a></li>
+      <li><a href="#aws-cli-deployment">AWS CLI Deployment</a></li>
     </ol>
   </li>
 </details>
@@ -407,6 +408,22 @@ script:
       4. **Value:** From AWS Console
       5. Save variables
    6. Check AWS S3 Bucket for your bucket which will contain the artifact generated from GitLab CI
+
+&nbsp;
+
+---
+
+&nbsp;
+
+### AWS CLI Deployment
+
+- [GitLab - Predefined variables reference](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html)
+  - `CI_PIPELINE_ID`
+  - `CI_PIPELINE_IID`
+
+1. At the deploy stage of `.gitlab-ci.yml`
+   1. `create-application-version`
+   2. `update-environment`
 
 &nbsp;
 
