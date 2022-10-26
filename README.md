@@ -22,6 +22,8 @@
     <ol>
       <li><a href="#cars-api">cars-api</a></li>
       <li><a href="#issues-with-m1-chip-arm64">Issues With M1 Chip (Arm64)</a></li>
+      <li><a href="#aws-elastic-beanstalk">AWS Elastic Beanstalk</a></li>
+      <li><a href="#aws-s3">AWS S3</a></li>
     </ol>
   </li>
 </details>
@@ -328,6 +330,57 @@ script:
   - docker pull --platform=linux/amd64 openjdk:12-alpine
   - ./gradlew build
 ```
+
+&nbsp;
+
+---
+
+&nbsp;
+
+### AWS Elastic Beanstalk
+
+1. AWS Elastic Beanstalk -> **Create New Application:** cars-api
+2. Create Environments -> **Select environment tier:** Web server environment
+   1. **Environment name:** production
+   2. **Preconfigured platform:** Java
+   3. **Application code:** Sample application
+   4. Create environment
+3. **Upload and Deploy:** cars-api.jar
+4. Test the given URL with postman
+
+&nbsp;
+
+---
+
+&nbsp;
+
+> **Jonathan:** FIX: Elastic Beanstalk healthcheck
+
+> Simple steps are just:
+>
+> 1. Go to Services -> EC2
+> 2. Left panel Load Balancing -> Target Groups
+> 3. Click on the auto-generated one (`awseb-SOMETHING-WEIRD`)
+> 4. Go to Group details -> Health check settings -> Edit
+> 5. Change endpoint from `/` to `/cars`
+
+&nbsp;
+
+---
+
+&nbsp;
+
+### AWS S3
+
+1. AWS S3 (Simple Storage Service) -> **Create Bucket:** cars-api-deployments
+2. Next -> Check Block all public access -> Next -> Create Bucket at summary page
+3. Create a group at **GitLab** which allows
+   1. organizing of projects in folders
+   2. set permissions and settings for the group
+4. Groups Settings -> CI/CD -> Expand Variables
+   1. **Key:** S3_BUCKET
+   2. **Value:** cars-api-deployments
+5. Settings -> General -> Expand Advanced -> Transfer project
 
 &nbsp;
 
