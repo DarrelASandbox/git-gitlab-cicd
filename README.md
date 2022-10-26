@@ -2,19 +2,28 @@
   <summary>Table of Contents</summary>
   <ol>
     <li><a href="#about-the-project">About The Project</a></li>
-    <li><a href="#introduction">Introduction</a>
+    <li>
+      <a href="#introduction">Introduction</a>
       <ol>
         <li><a href="#setup">Setup</a></li>
         <li><a href="#01-car-assembly-line">01-car-assembly-line</a></li>
       </ol>
     </li>
-    <li><a href="#basic-cicd-workflow">Basic CI/CD workflow</a>
+    <li>
+      <a href="#basic-cicd-workflow">Basic CI/CD workflow</a>
       <ol>
         <li><a href="#02-static-gatsby-website">02-static-gatsby-website</a></li>
-        <li><a href="#ci-fundamentals">CI Fundamentals</a>
+        <li><a href="#ci-fundamentals">CI Fundamentals</a></li>
       </ol>
+    </li>
   </ol>
-  <li><a href="#03-deploy-java-app-to-aws">03-deploy-java-app-to-aws</a></li>
+  <li>
+    <a href="#03-deploy-java-app-to-aws">03-deploy-java-app-to-aws</a>
+    <ol>
+      <li><a href="#cars-api">cars-api</a></li>
+      <li><a href="#issues-with-m1-chip-arm64">Issues With M1 Chip (Arm64)</a></li>
+    </ol>
+  </li>
 </details>
 
 &nbsp;
@@ -270,6 +279,54 @@ docker run --rm -u gradle -v "$PWD":/gradle/project -w /gradle/project gradle:la
 docker run --rm -p "5000:5000/tcp" -u gradle -v "$PWD":/gradle/project -w /gradle/project gradle:latest gradle bootRun
 
 # 5. Import Postman scripts from course resources
+```
+
+&nbsp;
+
+---
+
+&nbsp;
+
+### Issues With M1 Chip (Arm64)
+
+&nbsp;
+
+Failed attempts to fix:
+
+1. Set `entrypoint` command 1
+
+```yml
+image:
+  name: openjdk:12-alpine
+  entrypoint: ['--platform=linux/amd64']
+```
+
+2. Set `entrypoint` command 2
+
+```yml
+image:
+  name: openjdk:12-alpine
+  entrypoint: ['docker buildx build --platform linux/amd64 .']
+```
+
+3. Adding `Dockerfile`
+
+```Dockerfile
+FROM --platform=linux/amd64 python:3.7-alpine
+```
+
+4. Set DOCKER_DEFAULT_PLATFORM on local machine .zshrc
+
+```sh
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+```
+
+5. Replace `image` with `docker pull`
+
+```yml
+script:
+  - docker pull --platform=linux/amd64 openjdk:12-alpine
+  - ./gradlew build
 ```
 
 &nbsp;
