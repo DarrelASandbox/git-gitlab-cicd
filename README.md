@@ -24,6 +24,7 @@
       <li><a href="#issues-with-m1-chip-arm64">Issues With M1 Chip (Arm64)</a></li>
       <li><a href="#aws-elastic-beanstalk">AWS Elastic Beanstalk</a></li>
       <li><a href="#aws-s3">AWS S3</a></li>
+      <li><a href="#aws-iam">AWS IAM</a></li>
     </ol>
   </li>
 </details>
@@ -380,7 +381,32 @@ script:
 4. Groups Settings -> CI/CD -> Expand Variables
    1. **Key:** S3_BUCKET
    2. **Value:** cars-api-deployments
+   3. Save variables
 5. Settings -> General -> Expand Advanced -> Transfer project
+
+&nbsp;
+
+---
+
+&nbsp;
+
+### AWS IAM
+
+- Required for deploy stage in `.gitlab-ci.yml`
+- [AWS CLI Command Reference - S3](https://docs.aws.amazon.com/cli/latest/reference/s3/)
+
+1. AWS IAM -> Users -> Add user
+   1. **User name:** gitlabci
+   2. **Access type:** Programmatic access -> Next
+   3. **Attach existing policies directly:** AmazonS3FullAccess -> Next -> Next
+   4. Create user at Review page
+   5. Copy both **Access key ID** and **Secret access key** into GitLab CI variables
+      1. **Key:** AWS_ACCESS_KEY_ID
+      2. **Value:** From AWS Console
+      3. **Key:** AWS_SECRET_ACCESS_KEY
+      4. **Value:** From AWS Console
+      5. Save variables
+   6. Check AWS S3 Bucket for your bucket which will contain the artifact generated from GitLab CI
 
 &nbsp;
 

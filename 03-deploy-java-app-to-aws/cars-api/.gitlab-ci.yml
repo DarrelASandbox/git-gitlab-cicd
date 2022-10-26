@@ -1,6 +1,7 @@
 stages:
   - build
   - test
+  - deploy
 
 build:
   stage: build
@@ -18,3 +19,15 @@ smoke test:
     - java -jar ./build/libs/cars-api.jar &
     - sleep 30
     - curl http://localhost:5000/actuator/health | grep "UP"
+
+# Refer to AWS IAM section in README.md
+deploy:
+  stage: deploy
+  image:
+    name: amazon/aws-cli
+    entrypoint: ['']
+  script:
+    # Change the region accordingly
+    - aws configure set region us-east-1
+    # $S3_BUCKET variable refers to the one on GitLab Group
+    - aws s3 cp ./build/libs/cars-api.jar s3://$S3_BUCKET/cars-api.jar
