@@ -1,3 +1,4 @@
+# https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
 variables:
   ARTIFACT_NAME: cars-api-v$CI_PIPELINE_IID.jar
   APP_NAME: cars-api
@@ -27,6 +28,20 @@ smoke test:
     - java -jar ./build/libs/$ARTIFACT_NAME &
     - sleep 30
     - curl http://localhost:5000/actuator/health | grep "UP"
+
+# https://pmd.github.io/
+# PMD is an extensible cross-language static code analyzer
+# https://pmd.github.io/latest/pmd_rules_java_bestpractices.html#systemprintln
+# `pmd-ruleset.xml`
+code quality:
+  stage: test
+  image: eclipse-temurin:11
+  script:
+    - ./gradlew pmdMain pmdTest
+  artifacts:
+    when: always
+    paths:
+      - build/reports/pmd
 
 # Refer to AWS IAM section in README.md
 deploy:

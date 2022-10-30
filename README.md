@@ -419,10 +419,6 @@ script:
 
 ### AWS CLI Deployment
 
-- [GitLab - Predefined variables reference](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html)
-  - `CI_PIPELINE_ID`
-  - `CI_PIPELINE_IID`
-
 1. At the deploy stage of `.gitlab-ci.yml`
    1. `create-application-version`
    2. `update-environment`

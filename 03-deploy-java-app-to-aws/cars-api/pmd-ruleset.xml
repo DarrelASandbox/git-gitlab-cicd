@@ -17,4 +17,6 @@
         </properties>
     </rule>
 
+    <rule ref="category/java/bestpractices.xml/SystemPrintln" />
+
 </ruleset>
