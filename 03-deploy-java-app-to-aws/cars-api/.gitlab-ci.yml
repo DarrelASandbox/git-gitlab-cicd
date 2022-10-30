@@ -8,6 +8,7 @@ stages:
   - test
   - deploy
   - post deploy
+  - publishing
 
 build:
   stage: build
@@ -101,3 +102,12 @@ api testing:
     - newman/
   reports:
     junit: newman/report.xml
+
+pages:
+  stage: publishing
+  script:
+    - mkdir public
+    - mv newman/report.html public/index.html
+  artifacts:
+    paths:
+      - public
