@@ -43,6 +43,18 @@ code quality:
     paths:
       - build/reports/pmd
 
+unit tests:
+  stage: test
+  image: eclipse-temurin:11
+  script:
+    - ./gradlew test
+  artifacts:
+    when: always
+    paths:
+      - build/reports/tests
+    reports:
+      junit: build/test-results/test/*.xml
+
 # Refer to AWS IAM section in README.md
 deploy:
   stage: deploy
